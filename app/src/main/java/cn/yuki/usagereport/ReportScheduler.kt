@@ -11,7 +11,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-/** 配置存储（SharedPreferences）。App Secret 只存手机本地，不进源码。 */
+/** 配置存储（SharedPreferences）。App ID / App Secret / chat_id 都由使用者在应用里填写，只存手机本地，不进源码。 */
 object Prefs {
     private const val NAME = "cfg"
     const val KEY_APP_ID = "app_id"
@@ -20,20 +20,17 @@ object Prefs {
     const val KEY_LAST_REPORT_DATE = "last_report_date"
     const val KEY_LAST_STATUS = "last_status"
 
-    const val DEFAULT_APP_ID = "cli_aa4721d225795d0c"
-    const val DEFAULT_CHAT_ID = "oc_471d9c88f660e52f9350267e215c4720"
-
     fun get(context: Context) =
         context.getSharedPreferences(NAME, Context.MODE_PRIVATE)
 
     fun appId(context: Context): String =
-        get(context).getString(KEY_APP_ID, DEFAULT_APP_ID) ?: DEFAULT_APP_ID
+        get(context).getString(KEY_APP_ID, "") ?: ""
 
     fun appSecret(context: Context): String =
         get(context).getString(KEY_APP_SECRET, "") ?: ""
 
     fun chatId(context: Context): String =
-        get(context).getString(KEY_CHAT_ID, DEFAULT_CHAT_ID) ?: DEFAULT_CHAT_ID
+        get(context).getString(KEY_CHAT_ID, "") ?: ""
 
     fun today(): String = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
 }
@@ -78,9 +75,15 @@ object ReportScheduler {
 
     /** 真正执行上报（子线程里调用）。返回状态说明文字。 */
     fun doReport(context: Context): String {
+        if (Prefs.appId(context).isBlank()) {
+            return "未填 App ID，跳过上报"
+        }
         val secret = Prefs.appSecret(context)
         if (secret.isBlank()) {
             return "未填 App Secret，跳过上报"
+        }
+        if (Prefs.chatId(context).isBlank()) {
+            return "未填群 chat_id，跳过上报"
         }
         if (!UsageReader.hasUsageAccess(context)) {
             return "未授予使用情况访问权限，跳过上报"
