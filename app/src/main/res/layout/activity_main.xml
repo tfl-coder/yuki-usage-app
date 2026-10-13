@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="每晚 22:00 自动把当天屏幕使用汇总（总时长 + Top 应用）发到飞书「muse伴学」群。" />
+            android:text="每晚 22:00 自动把当天屏幕使用汇总（总时长 + Top 应用）发到你指定的飞书群。" />
 
         <TextView
             android:layout_width="wrap_content"
