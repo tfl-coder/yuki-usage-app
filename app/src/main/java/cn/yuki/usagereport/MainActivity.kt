@@ -27,9 +27,9 @@ class MainActivity : Activity() {
         tvStatus = findViewById(R.id.tvStatus)
 
         val prefs = Prefs.get(this)
-        etAppId.setText(prefs.getString(Prefs.KEY_APP_ID, Prefs.DEFAULT_APP_ID))
+        etAppId.setText(prefs.getString(Prefs.KEY_APP_ID, ""))
         etSecret.setText(prefs.getString(Prefs.KEY_APP_SECRET, ""))
-        etChat.setText(prefs.getString(Prefs.KEY_CHAT_ID, Prefs.DEFAULT_CHAT_ID))
+        etChat.setText(prefs.getString(Prefs.KEY_CHAT_ID, ""))
         refreshStatus()
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
@@ -78,7 +78,7 @@ class MainActivity : Activity() {
             }.start()
         }
 
-        // 每次打开应用都确保今晚的闹钟在（小米杀后台后的自愈）
+        // 每次打开应用都确保今晚的闹钟在（后台被杀后的自愈）
         ReportScheduler.scheduleNext(this)
     }
 
@@ -98,8 +98,10 @@ class MainActivity : Activity() {
     private fun refreshStatus() {
         if (!::tvStatus.isInitialized) return
         val access = if (UsageReader.hasUsageAccess(this)) "已授权" else "未授权"
+        val appId = if (Prefs.appId(this).isBlank()) "未填" else "已填"
         val secret = if (Prefs.appSecret(this).isBlank()) "未填" else "已填"
+        val chat = if (Prefs.chatId(this).isBlank()) "未填" else "已填"
         val last = Prefs.get(this).getString(Prefs.KEY_LAST_STATUS, "—")
-        tvStatus.text = "状态：使用情况访问=$access ｜ App Secret=$secret ｜ 上次上报：$last"
+        tvStatus.text = "状态：使用情况访问=$access ｜ App ID=$appId ｜ App Secret=$secret ｜ 群 ID=$chat ｜ 上次上报：$last"
     }
 }
